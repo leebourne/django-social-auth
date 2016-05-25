@@ -1,0 +1,84 @@
+{% extends "myapp/base.html" %} 
+
+{% block extrahead %}
+<style>
+  .user-details { text-align: center; font-size: 16px; font-weight: bold; }
+</style>
+{% endblock %}
+
+{% block title %}Registration{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+  <div class="buttons">
+    <div class="user-details">
+      You are logged in as <code>{{ user.username }}</code>!
+    </div>
+
+    <div>
+      <a class="btn btn-primary" href="/logout/" id="logout">
+        <i class="fa fa-sign-out"></i>
+        Logout
+      </a>
+    </div>
+  </div>
+{% endif %}
+
+{% if backend %}
+  <div id="company-required-modal" class="modal fade">
+    <form action="{% url "social:complete" backend=backend %}" method="post" role="form">{% csrf_token %}
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Company name required</h4>
+          </div>
+
+          <div class="modal-body">
+            <p>An company name is required.</p>
+            <div class="form-group">
+              <label class="control-label" for="company_name">Company name:</label>
+              <input class="form-control" id="company_name" type="" name="company_name" value="" />
+            </div>
+          </div>
+
+          <div class="modal-footer">
+<!--            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+            <button type="button" class="btn btn-primary">Continue</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endif %}
+
+<script type="text/javascript">
+  var modalDialog = function (modalId, modalLinkName, submitHandler) {
+    var $modal;
+
+    $modal = $(modalId).modal({show: false});
+
+    $modal.on('click', '.btn-primary', submitHandler || function (event) {
+      event.preventDefault();
+      $modal.find('form').submit();
+    });
+
+    if (modalLinkName) {
+      $('a[name="' + modalLinkName + '"]').on('click', function (event) {
+        event.preventDefault();
+        $modal.modal('toggle');
+      });
+    }
+
+    return $modal;
+  };
+
+  $(function () {
+    
+    {% if company_required %}
+    	var $companyRequired = modalDialog('#company-required-modal');
+    	$companyRequired.modal('show');
+    {% endif %}
+  });
+</script>
+
+{% endblock content %}
